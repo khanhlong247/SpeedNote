@@ -1,0 +1,13 @@
+.note {
+  resize: both;
+  overflow: auto;
+  font-family: Arial, sans-serif;
+  background-color: rgba(255, 255, 255, 0); /* Nền trong suốt */
+  border: 2px solid black; /* Viền đen */
+  color: black; /* Màu chữ */
+  padding: 5px;
+  box-sizing: border-box;
+  z-index: 1000;
+  position: absolute;
+  cursor: move; /* Con trỏ hiển thị khi kéo */
+}

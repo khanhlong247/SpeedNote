@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Editor</title>
+  <style>
+    button {
+      display: block;
+      margin: 10px;
+      padding: 10px;
+      width: 100%;
+    }
+    body {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <input type="color" id="colorPicker" value="#000000">
+  <button id="draw">Enable Drawings</button>
+  <button id="toggleErasing">Toggle Erasing</button>
+  <button id="addNote">Add Note</button>
+  <button id="saveAsImage">Save as Image</button>
+  <button id="saveToImgur">Save to Imgur</button>
+  <button id="saveAsPDF">Save as PDF</button>
+  <button id="clearDraw">Clear Drawings</button>
+  <button id="clearNote">Clear Notes</button>
+  <button id="clearAll">Clear All</button>
+  <!-- Bao gồm thư viện PDF-LIB -->
+  <script src="pdf-lib.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
