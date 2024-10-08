@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .option-button {
+      padding: 10px;
+      margin: 5px;
+      width: 90%;
+      font-size: 14px;
+      cursor: pointer;
+      background-color: #e0e0e0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Save Options -->
+  <div id="saveOptions" style="display: none;">
+    <button class="option-button" id="saveAsImage">Save as Image</button>
+    <button class="option-button" id="saveToImgur">Save to Imgur</button>
+    <button class="option-button" id="saveAsPDF">Save as PDF</button>
+  </div>
+
+  <!-- Clear Options -->
+  <div id="clearOptions" style="display: none;">
+    <button class="option-button" id="clearDraw">Clear Drawings</button>
+    <button class="option-button" id="clearNote">Clear Notes</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
