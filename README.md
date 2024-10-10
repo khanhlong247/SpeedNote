@@ -45,3 +45,10 @@ Phân tích:
 - Chọn **Chế độ dành cho nhà phát triển** bên trên phải màn hình.
 - Chọn **Tải tiện ích đã giải nén** bên trên trái màn hình.
 - Chọn folder chứa mã nguồn phần mềm để cài đặt Extension.
+
+#### 2. Trình duyệt Microsoft Edge
+- Chọn mục **Extentions** ở nút ba chấm bên trên phải màn hình.
+- Chọn mục **Manage Extentions**.
+- Chọn **Developer mode** bên trái màn hình.
+- Chọn **Load Unpacked** ở giữa màn hình.
+- Chọn folder chứa mã nguồn phần mềm để cài đặt Extension.
