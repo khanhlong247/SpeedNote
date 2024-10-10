@@ -4,138 +4,143 @@
   <title>Web Editor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-  <style>
-    button {
-      display: block;
-      margin: 10px;
-      padding: 10px;
-      width: 70px;
-      height: 70px;
-    }
-
-    /* Tạo bố cục cho các button */
-    body {
-      display: flex;
-      justify-content: space-between;
-      background-color: #161B21;
-    }
-
-    /* Nhóm các chức năng con trong container và ẩn mặc định */
-    .group {
-      position: relative;
-      display: inline-block;
-    }
-
-    .group-content1 {
-      display: none;
-      position: absolute;
-      top: 0px;
-      left: -120px;
-      z-index: 1;
-      background-color: white;
-      border: 1px solid #ccc;
-      padding: 10px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .group-content2 {
-      display: none;
-      position: absolute;
-      top: 0px;
-      left: -230px;
-      z-index: 1;
-      background-color: white;
-      border: 1px solid #ccc;
-      padding: 10px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Hiển thị các chức năng con khi di chuột vào nút chính */
-    .group:hover .group-content1 {
-      display: block;
-    }
-    .group:hover .group-content2 {
-      display: block;
-    }
-
-
-    .group-content-mini {
-      display: flex;
-    }
-
-    /* CSS cho container nhóm Clear và Save */
-    .group-content1 button {
-      width: 70px;
-      margin: 0 5px;
-    }
-    .group-content2 button {
-      width: 70px;
-      margin: 0 5px;
-    }
-    .icon-button {
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+<style>
+  button {
+    display: block;
+    margin: 10px;
     padding: 10px;
-    width: 100px;
-    height: 100px;
-    background-color: #F4A950; /* Màu nền mặc định */
-    color: #161B21;
-    border: none;
-    border-radius: 20px;
-    font-size: 16px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Thêm shadow box */
-    transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển đổi */
+    width: 70px;
+    height: 70px;
+  }
+
+  /* Tạo bố cục cho các button */
+  body {
+    display: flex;
+    justify-content: space-between;
+    background-color: #161B21;
+  }
+
+  /* Nhóm các chức năng con trong container và ẩn mặc định */
+  .group {
+    position: relative;
+    display: inline-block;
+  }
+
+  .group-content1 {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: -120px;
+    z-index: 1;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .group-content2 {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: -230px;
+    z-index: 1;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Hiển thị các chức năng con khi di chuột vào nút chính */
+  .group:hover .group-content1 {
+    display: block;
+  }
+  .group:hover .group-content2 {
+    display: block;
+  }
+
+
+  .group-content-mini {
+    display: flex;
+  }
+
+  /* CSS cho container nhóm Clear và Save */
+  .group-content1 button {
+    width: 70px;
+    margin: 0 5px;
+  }
+  .group-content2 button {
+    width: 70px;
+    margin: 0 5px;
+  }
+  .icon-button {
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  width: 100px;
+  height: 100px;
+  background-color: #F4A950; /* Màu nền mặc định */
+  color: #161B21;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Thêm shadow box */
+  transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển đổi */
 }
 
 .icon-button:hover {
-  background-color: #a46313; /* Màu nền khi hover */
-    transform: translateY(-2px); /* Nâng nút lên một chút khi hover */
+background-color: #a46313; /* Màu nền khi hover */
+  transform: translateY(-2px); /* Nâng nút lên một chút khi hover */
 }
 
 .icon-button i {
-    font-size: 24px; /* Kích thước icon lớn hơn chữ */
-    margin-bottom: 5px;
+  font-size: 24px; /* Kích thước icon lớn hơn chữ */
+  margin-bottom: 5px;
 }
 
 /* Thay đổi hiệu ứng shadow cho nhóm nút Clear và Save */
 .group-content1,
 .group-content2 {
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    background-color: #161B21;
-    border: none;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #161B21;
+  border: none;
 }
 
 .group-content-mini button {
-  background-color: #F4A950; /* Màu nền mặc định */
-    color: #161B21;
-    border: none;
-    border-radius: 20px;
-    padding: 5px;
-    width: 100px; /* Đảm bảo kích thước đồng đều cho các nút con */
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển đổi */
+background-color: #F4A950; /* Màu nền mặc định */
+  color: #161B21;
+  border: none;
+  border-radius: 20px;
+  padding: 5px;
+  width: 100px; /* Đảm bảo kích thước đồng đều cho các nút con */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển đổi */
 }
 
 .group-content-mini button:hover {
-  background-color: #a46313; /* Màu nền khi hover cho các nút con */
-    transform: translateY(-1px); /* Nâng nút lên một chút khi hover */
+background-color: #a46313; /* Màu nền khi hover cho các nút con */
+  transform: translateY(-1px); /* Nâng nút lên một chút khi hover */
 }
 
-    .colorpicker {
-      border-radius: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: #F4A950;;
-    }
-  </style>
+  .colorpicker {
+    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #F4A950;;
+  }
+</style>
+
 </head>
 <body>
   <input class="colorpicker" type="color" id="colorPicker" value="#000000">
-
-
+  
+  <!-- Nút Chatbot AI -->
+  <button class="icon-button" id="chatbotAI">
+    <img src="icons/chatbot.png" alt="Chatbot Icon" style="width: 24px; height: 24px; margin: 3px;">
+    <span>Chatbot AI</span>
+  </button>
 
   <button class="icon-button" id="draw"><span>Drawings</span>
   </button>
@@ -186,6 +191,5 @@
   <!-- Bao gồm thư viện PDF-LIB -->
   <script src="pdf-lib.min.js"></script>
   <script src="popup.js"></script>
-
 </body>
 </html>

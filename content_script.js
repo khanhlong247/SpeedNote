@@ -20,11 +20,138 @@ if (!window.hasRun) {
       drawColor = message.color;
     } else if (message.action === 'setDrawColor') {
       drawColor = message.color; // Update the draw color with the selected color
+    } else if (message.action === 'createChatBox') {
+      createChatBox();
     }
   });
   
+  function createChatBox() {
+    if (document.getElementById('chatBox')) {
+        return; // Nếu chatbot đã tồn tại, không tạo lại
+    }
 
-  
+    const chatBox = document.createElement('div');
+    chatBox.id = 'chatBox';
+    chatBox.style.position = 'fixed';
+    chatBox.style.bottom = '10px';
+    chatBox.style.right = '10px';
+    chatBox.style.width = '300px';
+    chatBox.style.height = '400px';
+    chatBox.style.backgroundColor = '#fff';
+    chatBox.style.border = '1px solid #ccc';
+    chatBox.style.borderRadius = '10px';
+    chatBox.style.zIndex = '10000';
+    chatBox.style.display = 'flex';
+    chatBox.style.flexDirection = 'column';
+    chatBox.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.2)';
+
+    // Tạo nút tắt (close button)
+    const closeButton = document.createElement('button');
+    closeButton.innerText = 'X';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '5px';
+    closeButton.style.right = '5px';
+    closeButton.style.background = '#f44336';
+    closeButton.style.color = '#fff';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '50%';
+    closeButton.style.width = '25px';
+    closeButton.style.height = '25px';
+    closeButton.style.cursor = 'pointer';
+
+    closeButton.addEventListener('click', () => {
+      chatBox.remove(); // Tắt chatbot khi nhấn nút tắt
+    });
+
+    const messageDisplay = document.createElement('div');
+    messageDisplay.id = 'messageDisplay';
+    messageDisplay.style.flex = '1';
+    messageDisplay.style.overflowY = 'scroll';
+    messageDisplay.style.padding = '10px';
+    messageDisplay.style.backgroundColor = '#f9f9f9';
+
+    const inputWrapper = document.createElement('div');
+    inputWrapper.style.display = 'flex';
+    inputWrapper.style.borderTop = '1px solid #ccc';
+
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.id = 'chatInput';
+    inputField.style.flex = '1';
+    inputField.style.padding = '10px';
+    inputField.placeholder = 'Type a message...';
+    inputField.style.border = 'none';
+    inputField.style.outline = 'none';
+
+    const sendButton = document.createElement('button');
+    sendButton.innerText = 'Send';
+    sendButton.style.padding = '10px';
+    sendButton.style.backgroundColor = '#4CAF50';
+    sendButton.style.color = '#fff';
+    sendButton.style.border = 'none';
+    sendButton.style.cursor = 'pointer';
+
+    sendButton.addEventListener('click', async () => {
+        const userMessage = inputField.value;
+        if (userMessage.trim()) {
+            const userMsgElement = document.createElement('div');
+            userMsgElement.innerText = 'You: ' + userMessage;
+            messageDisplay.appendChild(userMsgElement);
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+
+            try {
+                const botResponse = await sendMessageToChatbot(userMessage);
+                const botMsgElement = document.createElement('div');
+                botMsgElement.innerText = 'Bot: ' + botResponse;
+                messageDisplay.appendChild(botMsgElement);
+                messageDisplay.scrollTop = messageDisplay.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+                const errorMsgElement = document.createElement('div');
+                errorMsgElement.innerText = 'Error: ' + error.message;
+                messageDisplay.appendChild(errorMsgElement);
+                messageDisplay.scrollTop = messageDisplay.scrollHeight;
+            }
+
+            inputField.value = '';
+        }
+    });
+
+    inputWrapper.appendChild(inputField);
+    inputWrapper.appendChild(sendButton);
+    chatBox.appendChild(closeButton); // Thêm nút tắt vào chatbox
+    chatBox.appendChild(messageDisplay);
+    chatBox.appendChild(inputWrapper);
+    document.body.appendChild(chatBox);
+  }
+
+  async function sendMessageToChatbot(message) {
+    // Đây là nơi bạn gọi API chatbot AI của Google Gemini
+    const API_KEY = 'AIzaSyBHuQZ00RCPn1sisLqmiwAWqr8qupNRA0w'; // Đặt API key mới của bạn ở đây
+    const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent'; // Đặt endpoint API mới
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gemini-1.5-turbo', // Model mới
+        prompt: {
+          messages: [{ "role": "user", "content": message }]
+        },
+        max_tokens: 150 // Số lượng token tối đa bạn muốn nhận từ bot
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim(); // Trả về câu trả lời từ chatbot
+  }
   
   // Drawing and Erasing State Variables
   let drawingEnabled = false;
@@ -72,9 +199,6 @@ if (!window.hasRun) {
     canvas.removeEventListener('mousemove', draw);
   }
   
-  
-  
-  
   function startDrawing(e) {
     if (erasingEnabled) return;
     drawing = true;
@@ -102,8 +226,6 @@ if (!window.hasRun) {
     [lastX, lastY] = [currentX, currentY];
   }
   
-  
-  
   function clearDrawings() {
     if (ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -113,25 +235,26 @@ if (!window.hasRun) {
   
   let isCanvasVisible = true; // Default is visible
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'toggleVisibility') {
         toggleCanvasVisibility();
     }
     // Other cases...
-});
+  });
 
-function toggleCanvasVisibility() {
+  function toggleCanvasVisibility() {
     if (canvas) {
         isCanvasVisible = !isCanvasVisible;
         canvas.style.display = isCanvasVisible ? 'block' : 'none';
     }
-}
+  }
+
   // Erasing Functions
   function toggleErasing() {
     if (drawingEnabled) toggleDrawing(); // Turn off drawing if erasing is enabled
     erasingEnabled = !erasingEnabled;
   
-    // Save erasing state in chrome.storage
+    // Save erasing state in chrome.storage.local
     chrome.storage.local.set({ erasingEnabled });
   
     erasingEnabled ? enableErasing() : disableErasing();
@@ -166,7 +289,7 @@ function toggleCanvasVisibility() {
   }
   
   function erase(e) {
-    if (!drawing || !erasingEnabled) return;
+    if (!drawing || ! erasingEnabled) return;
   
     const eraseX = e.clientX + window.scrollX;
     const eraseY = e.clientY + window.scrollY;
@@ -229,9 +352,6 @@ function toggleCanvasVisibility() {
     ctx = canvas.getContext('2d');
   }
   
-  
-  
-  
   function setupEventListeners() {
     window.addEventListener('resize', resizeCanvas);
     const observer = new MutationObserver(resizeCanvas);
@@ -277,172 +397,171 @@ function toggleCanvasVisibility() {
     }
   }
   
-  
-function createCursorCircle() {
-  cursorCircle = document.createElement('div');
-  cursorCircle.style.position = 'absolute';
-  cursorCircle.style.width = `${eraseRadius * 2}px`;
-  cursorCircle.style.height = `${eraseRadius * 2}px`;
-  cursorCircle.style.borderRadius = '50%';
-  cursorCircle.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
-  cursorCircle.style.pointerEvents = 'none'; // Prevent interference with mouse events
-  document.body.appendChild(cursorCircle);
-}
-
-function moveCursorCircle(e) {
-  const x = e.clientX + window.scrollX - eraseRadius;
-  const y = e.clientY + window.scrollY - eraseRadius;
-  cursorCircle.style.left = `${x}px`;
-  cursorCircle.style.top = `${y}px`;
-}
-
-function removeCursorCircle() {
-  if (cursorCircle) {
-    document.body.removeChild(cursorCircle);
-    cursorCircle = null;
+  function createCursorCircle() {
+    cursorCircle = document.createElement('div');
+    cursorCircle.style.position = 'absolute';
+    cursorCircle.style.width = `${eraseRadius * 2}px`;
+    cursorCircle.style.height = `${eraseRadius * 2}px`;
+    cursorCircle.style.borderRadius = '50%';
+    cursorCircle.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+    cursorCircle.style.pointerEvents = 'none'; // Prevent interference with mouse events
+    document.body.appendChild(cursorCircle);
   }
-}
 
-// Initialize default values
-chrome.storage.local.get(['drawingEnabled', 'erasingEnabled'], (data) => {
-  drawingEnabled = data.drawingEnabled || false;
-  erasingEnabled = data.erasingEnabled || false;
-
-  if (drawingEnabled) {
-    enableDrawing();
+  function moveCursorCircle(e) {
+    const x = e.clientX + window.scrollX - eraseRadius;
+    const y = e.clientY + window.scrollY - eraseRadius;
+    cursorCircle.style.left = `${x}px`;
+    cursorCircle.style.top = `${y}px`;
   }
-  if (erasingEnabled) {
-    enableErasing();
+
+  function removeCursorCircle() {
+    if (cursorCircle) {
+      document.body.removeChild(cursorCircle);
+      cursorCircle = null;
+    }
   }
-});
 
-function addNote() {
-  // Tạo container chứa ghi chú và nút tùy chọn
-  const noteContainer = document.createElement('div');
-  noteContainer.classList.add('note-container');
-  noteContainer.style.position = 'absolute';
-  noteContainer.style.top = `${window.scrollY + 100}px`; 
-  noteContainer.style.left = `${window.scrollX + 100}px`;
-  noteContainer.style.width = '220px';
-  noteContainer.style.height = 'auto';
-  noteContainer.style.backgroundColor = 'rgba(255, 255, 255, 0)';
-  // noteContainer.style.border = '2px solid #ccc';
-  noteContainer.style.padding = '5px';
-  noteContainer.style.zIndex = 9999;
-  noteContainer.style.resize = 'both';
-  noteContainer.style.maxWidth = '90vw';
-  noteContainer.style.maxHeight = '90vh';
-  noteContainer.style.boxShadow = '0px 0px 5px rgba(0, 0, 0, 1)';
+  // Initialize default values
+  chrome.storage.local.get(['drawingEnabled', 'erasingEnabled'], (data) => {
+    drawingEnabled = data.drawingEnabled || false;
+    erasingEnabled = data.erasingEnabled || false;
 
-  // Tạo phần chỉnh sửa nội dung
-  const noteContent = document.createElement('div');
-  noteContent.contentEditable = true;
-  noteContent.style.width = '100%';
-  noteContent.style.minHeight = '50px';
-  noteContent.style.padding = '5px';
-  // noteContent.style.border = '1px solid #ddd';
-  noteContent.style.boxSizing = 'border-box';
-
-  // Tạo nút mở bảng tùy chọn
-  const optionsButton = document.createElement('button');
-  optionsButton.innerHTML = '⚙️'; // Nút biểu tượng cài đặt
-  optionsButton.style.position = 'absolute';
-  optionsButton.style.top = '-10px';
-  optionsButton.style.right = '-10px';
-  optionsButton.style.cursor = 'pointer';
-  optionsButton.style.fontSize = '16px';
-  optionsButton.style.backgroundColor = 'transparent';
-  optionsButton.style.border = 'none';
-
-  // Tạo bảng tùy chọn màu và xóa
-  const optionsMenu = document.createElement('div');
-  optionsMenu.style.display = 'none'; // Ẩn bảng ban đầu
-  optionsMenu.style.position = 'absolute';
-  optionsMenu.style.top = '-80px'; // Đặt bảng sát với note
-  optionsMenu.style.left = '0';
-  optionsMenu.style.padding = 'opx';
-  optionsMenu.style.backgroundColor = '#161B21';
-  optionsMenu.style.border = 'none';
-  optionsMenu.style.boxShadow = '0px 0px 5px rgba(0, 0, 0, 1)';
-  optionsMenu.style.zIndex = 10000;
-
-  // Tạo danh sách 8 màu và màu trắng để xóa nền
-  const colors = ['#F0F0F0', '#FFF9C4', '#E3F2FD', '#FFE0B2', '#FCE4EC', '#FFF8E1','#E8F5E9','#EDE7F6', '#FFFFFF'];
-  colors.forEach(color => {
-      const colorOption = document.createElement('div');
-      colorOption.style.backgroundColor = color;
-      colorOption.style.width = '25px';
-      colorOption.style.height = '25px';
-      // colorOption.style.border = '1px solid black'
-      colorOption.style.display = 'inline-block';
-      colorOption.style.margin = '0px';
-      colorOption.style.cursor = 'pointer';
-
-      // Thay đổi màu nền của ghi chú khi chọn màu
-      colorOption.addEventListener('click', function() {
-          if (color === '#FFFFFF') {
-              // Xóa nền, đặt lại màu nền mặc định
-              noteContainer.style.backgroundColor = 'transparent';
-          } else {
-              noteContainer.style.backgroundColor = color;
-          }
-      });
-
-      optionsMenu.appendChild(colorOption);
+    if (drawingEnabled) {
+      enableDrawing();
+    }
+    if (erasingEnabled) {
+      enableErasing();
+    }
   });
 
-  // Tạo nút xóa
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'Delete';
-  deleteButton.style.color = '#F4A950';
-  deleteButton.style.backgroundColor = '#161B21';
-  deleteButton.style.border = 'none';
-  deleteButton.style.display = 'block';
-  deleteButton.style.marginTop = '10px';
-  deleteButton.style.cursor = 'pointer';
+  function addNote() {
+    // Tạo container chứa ghi chú và nút tùy chọn
+    const noteContainer = document.createElement('div');
+    noteContainer.classList.add('note-container');
+    noteContainer.style.position = 'absolute';
+    noteContainer.style.top = `${window.scrollY + 100}px`; 
+    noteContainer.style.left = `${window.scrollX + 100}px`;
+    noteContainer.style.width = '220px';
+    noteContainer.style.height = 'auto';
+    noteContainer.style.backgroundColor = 'rgba(255, 255, 255, 0)';
+    // noteContainer.style.border = '2px solid #ccc';
+    noteContainer.style.padding = '5px';
+    noteContainer.style.zIndex = 9999;
+    noteContainer.style.resize = 'both';
+    noteContainer.style.maxWidth = '90vw';
+    noteContainer.style.maxHeight = '90vh';
+    noteContainer.style.boxShadow = '0px 0px 5px rgba(0, 0, 0, 1)';
 
-  // Thêm sự kiện xóa ghi chú khi nhấn nút xóa
-  deleteButton.addEventListener('click', function() {
-      noteContainer.remove();
-  });
+    // Tạo phần chỉnh sửa nội dung
+    const noteContent = document.createElement('div');
+    noteContent.contentEditable = true;
+    noteContent.style.width = '100%';
+    noteContent.style.minHeight = '50px';
+    noteContent.style.padding = '5px';
+    // noteContent.style.border = '1px solid #ddd';
+    noteContent.style.boxSizing = 'border-box';
 
-  optionsMenu.appendChild(deleteButton);
+    // Tạo nút mở bảng tùy chọn
+    const optionsButton = document.createElement('button');
+    optionsButton.innerHTML = '⚙️'; // Nút biểu tượng cài đặt
+    optionsButton.style.position = 'absolute';
+    optionsButton.style.top = '-10px';
+    optionsButton.style.right = '-10px';
+    optionsButton.style.cursor = 'pointer';
+    optionsButton.style.fontSize = '16px';
+    optionsButton.style.backgroundColor = 'transparent';
+    optionsButton.style.border = 'none';
 
-  // Thêm sự kiện mở/đóng bảng tùy chọn khi nhấn nút
-  optionsButton.addEventListener('click', function() {
-      optionsMenu.style.display = optionsMenu.style.display === 'none' ? 'block' : 'none';
-  });
+    // Tạo bảng tùy chọn màu và xóa
+    const optionsMenu = document.createElement('div');
+    optionsMenu.style.display = 'none'; // Ẩn bảng ban đầu
+    optionsMenu.style.position = 'absolute';
+    optionsMenu.style.top = '-80px'; // Đặt bảng sát với note
+    optionsMenu.style.left = '0';
+    optionsMenu.style.padding = 'opx';
+    optionsMenu.style.backgroundColor = '#161B21';
+    optionsMenu.style.border = 'none';
+    optionsMenu.style.boxShadow = '0px 0px 5px rgba(0, 0, 0, 1)';
+    optionsMenu.style.zIndex = 10000;
 
-  // Thêm nội dung và các nút vào ghi chú
-  noteContainer.appendChild(noteContent);
-  noteContainer.appendChild(optionsButton);
-  noteContainer.appendChild(optionsMenu);
+    // Tạo danh sách 8 màu và màu trắng để xóa nền
+    const colors = ['#F0F0F0', '#FFF9C4', '#E3F2FD', '#FFE0B2', '#FCE4EC', '#FFF8E1','#E8F5E9','#EDE7F6', '#FFFFFF'];
+    colors.forEach(color => {
+        const colorOption = document.createElement('div');
+        colorOption.style.backgroundColor = color;
+        colorOption.style.width = '25px';
+        colorOption.style.height = '25px';
+        // colorOption.style.border = '1px solid black'
+        colorOption.style.display = 'inline-block';
+        colorOption.style.margin = '0px';
+        colorOption.style.cursor = 'pointer';
 
-  // Thêm ghi chú vào body
-  document.body.appendChild(noteContainer);
+        // Thay đổi màu nền của ghi chú khi chọn màu
+        colorOption.addEventListener('click', function() {
+            if (color === '#FFFFFF') {
+                // Xóa nền, đặt lại màu nền mặc định
+                noteContainer.style.backgroundColor = 'transparent';
+            } else {
+                noteContainer.style.backgroundColor = color;
+            }
+        });
 
-  // Kéo thả ghi chú
-  let isDragging = false;
-  let offsetX, offsetY;
+        optionsMenu.appendChild(colorOption);
+    });
 
-  noteContainer.addEventListener('mousedown', (e) => {
-      if (e.target === optionsButton || e.target === optionsMenu) return; // Không kéo khi nhấn vào nút cài đặt
-      isDragging = true;
-      offsetX = e.clientX - noteContainer.offsetLeft;
-      offsetY = e.clientY - noteContainer.offsetTop;
-  });
+    // Tạo nút xóa
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = 'Delete';
+    deleteButton.style.color = '#F4A950';
+    deleteButton.style.backgroundColor = '#161B21';
+    deleteButton.style.border = 'none';
+    deleteButton.style.display = 'block';
+    deleteButton.style.marginTop = '10px';
+    deleteButton.style.cursor = 'pointer';
 
-  document.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-          noteContainer.style.left = `${e.clientX - offsetX}px`;
-          noteContainer.style.top = `${e.clientY - offsetY}px`;
-      }
-  });
+    // Thêm sự kiện xóa ghi chú khi nhấn nút xóa
+    deleteButton.addEventListener('click', function() {
+        noteContainer.remove();
+    });
 
-  document.addEventListener('mouseup', () => {
-      isDragging = false;
-  });
-}
+    optionsMenu.appendChild(deleteButton);
+
+    // Thêm sự kiện mở/đóng bảng tùy chọn khi nhấn nút
+    optionsButton.addEventListener('click', function() {
+        optionsMenu.style.display = optionsMenu.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Thêm nội dung và các nút vào ghi chú
+    noteContainer.appendChild(noteContent);
+    noteContainer.appendChild(optionsButton);
+    noteContainer.appendChild(optionsMenu);
+
+    // Thêm ghi chú vào body
+    document.body.appendChild(noteContainer);
+
+    // Kéo thả ghi chú
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    noteContainer.addEventListener('mousedown', (e) => {
+        if (e.target === optionsButton || e.target === optionsMenu) return; // Không kéo khi nhấn vào nút cài đặt
+        isDragging = true;
+        offsetX = e.clientX - noteContainer.offsetLeft;
+        offsetY = e.clientY - noteContainer.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            noteContainer.style.left = `${e.clientX - offsetX}px`;
+            noteContainer.style.top = `${e.clientY - offsetY}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+  }
 
   function clearDraw() {
     document.querySelectorAll('#drawingCanvas').forEach(el => el.remove());

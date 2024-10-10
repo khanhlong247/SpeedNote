@@ -3,7 +3,15 @@
   "name": "Web Editor Extension",
   "version": "1.0",
   "description": "Edit web pages directly and save changes as an image",
-  "permissions": ["activeTab", "scripting", "tabs", "downloads","storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -28,6 +36,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.imgur.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.imgur.com https://generativelanguage.googleapis.com"
   }
 }

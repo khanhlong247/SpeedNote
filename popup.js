@@ -15,6 +15,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Handle Chatbot AI button
+    const chatbotButton = document.getElementById('chatbotAI');
+    chatbotButton.addEventListener('click', () => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            injectContentScript(tabs[0].id, () => {
+                chrome.tabs.sendMessage(tabs[0].id, { action: 'createChatBox' });
+            });
+        });
+    });
+
  // Handle Drawing Toggle
 let drawingEnabled = false;
 const drawButton = document.getElementById('draw');
